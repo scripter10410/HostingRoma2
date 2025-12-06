@@ -154,7 +154,7 @@ client.on('interactionCreate', async (interaction) => {
       }
 
       await interaction.reply({
-        content: 'SERVER STARTUP :Roman:\nFight, Explore, Forge Your Story in the Province!\n@here https://www.roblox.com/games/86345940733879/Roman-Jerusalem for ssu',
+        content: '## SERVER STARTUP :Roman:\nFight, Explore, Forge Your Story in the Province!\n@here https://www.roblox.com/games/86345940733879/Roman-Jerusalem',
         allowedMentions: { parse: ['everyone', 'roles'] }
       });
       return;
