@@ -1,7 +1,6 @@
 require('dotenv').config();
 const { REST, Routes, SlashCommandBuilder } = require('discord.js');
 
-// Define all slash commands
 const commands = [
   new SlashCommandBuilder()
     .setName('ticket')
@@ -28,7 +27,7 @@ const commands = [
   // ✅ New SSU command
   new SlashCommandBuilder()
     .setName('ssu')
-    .setDescription('Start SSU and announce to everyone')
+    .setDescription('Start server startup announcement')
 ].map(command => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
