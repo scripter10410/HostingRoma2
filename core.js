@@ -55,10 +55,7 @@ client.on('interactionCreate', async (interaction) => {
         ],
         components: [
           new ActionRowBuilder().addComponents(
-            new ButtonBuilder()
-              .setCustomId('open_ticket')
-              .setLabel('Support')
-              .setStyle(ButtonStyle.Primary),
+            new ButtonBuilder().setCustomId('open_ticket').setLabel('Support').setStyle(ButtonStyle.Primary),
           ),
         ],
       });
@@ -146,18 +143,26 @@ client.on('interactionCreate', async (interaction) => {
       return;
     }
 
-// -------- /ssu --------
-if (interaction.isChatInputCommand() && interaction.commandName === 'ssu') {
-  if (!isAdmin(interaction.member)) {
-    await interaction.reply({ content: '❌ You do not have permission to use this command.', ephemeral: true });
-    return;
+    // -------- /ssu --------
+    if (interaction.isChatInputCommand() && interaction.commandName === 'ssu') {
+      if (!isAdmin(interaction.member)) {
+        await interaction.reply({ content: '❌ You do not have permission to use this command.', ephemeral: true });
+        return;
+      }
+
+      await interaction.reply({
+        content:
+          `# SERVER STARTUP <:roman:1439723688403402813>\n` +
+          `Fight, Explore, Forge Your Story in the Province!\n` +
+          `@here https://www.roblox.com/games/86345940733879/Roman-Jerusalem`,
+        allowedMentions: { parse: ['everyone', 'roles'] },
+      });
+      return;
+    }
+  } catch (err) {
+    console.error('❌ Command error:', err.message);
   }
+});
 
-  await interaction.reply({
-    content: `# SERVER STARTUP <:roman:1439723688403402813>\nFight, Explore, Forge Your Story in the Province!\n@here https://www.roblox.com/games/86345940733879/Roman-Jerusalem`,
-    allowedMentions: { parse: ['everyone', 'roles'] }
-  });
-  return;
-}
-
+// ---------- Login ----------
 client.login(process.env.TOKEN);
