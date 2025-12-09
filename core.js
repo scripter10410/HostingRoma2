@@ -11,31 +11,69 @@ const client = new Client({
   ],
 });
 
+// ✅ Command collection
 client.commands = new Collection();
 
-// Example command
+// ----------------------
+// /importance command
+// ----------------------
 client.commands.set('importance', {
   execute: async (interaction) => {
     try {
       if (interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-        // ✅ First response
         await interaction.reply({ content: "📢 Importance command executed successfully!" });
       } else {
-        await interaction.reply({ content: "❌ You don’t have permission to use this command." });
+        await interaction.reply({ content: "❌ You don’t have permission to use /importance", flags: 64 });
       }
     } catch (err) {
-      console.error("❌ Command error:", err);
-
-      // ✅ If already replied, use editReply or followUp
+      console.error("❌ Importance command error:", err);
       if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({ content: "⚠️ There was an error executing that command.", flags: 64 });
+        await interaction.followUp({ content: "⚠️ Error executing /importance", flags: 64 });
       } else {
-        await interaction.reply({ content: "⚠️ There was an error executing that command.", flags: 64 });
+        await interaction.reply({ content: "⚠️ Error executing /importance", flags: 64 });
       }
     }
   },
 });
 
+// ----------------------
+// /ssu command
+// ----------------------
+client.commands.set('ssu', {
+  execute: async (interaction) => {
+    try {
+      if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+        return interaction.reply({ content: "❌ You don’t have permission to use /ssu", flags: 64 });
+      }
+
+      // ✅ First and only reply (ephemeral confirmation)
+      await interaction.reply({ content: "✅ SSU announcement sent!", flags: 64 });
+
+      // Public announcement message
+      const announcement = `# 📢 @here Server Startup Update!**\n\nThe server is now starting up. Please join accordingly https://www.roblox.com/games/86345940733879/Roman-Jerusalem#!/about .`;
+
+      // ✅ Send announcement separately (not another reply)
+      if (interaction.channel) {
+        await interaction.channel.send(announcement);
+      } else {
+        await interaction.followUp({ content: announcement });
+      }
+    } catch (err) {
+      console.error("❌ SSU command error:", err);
+
+      // ✅ Only use followUp here, never reply again
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp({ content: "⚠️ Error executing /ssu", flags: 64 });
+      } else {
+        await interaction.reply({ content: "⚠️ Error executing /ssu", flags: 64 });
+      }
+    }
+  },
+});
+
+// ----------------------
+// Bot lifecycle
+// ----------------------
 client.once('clientReady', (c) => {
   console.log(`🤖 Logged in as ${c.user.tag}`);
 });
@@ -49,6 +87,7 @@ client.on('interactionCreate', async (interaction) => {
   await command.execute(interaction);
 });
 
+// ✅ Login
 client.login(process.env.TOKEN).catch(err => {
   console.error("❌ Failed to login. Check your TOKEN in .env", err);
 });
