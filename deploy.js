@@ -1,34 +1,18 @@
+// deploy.js
 require('dotenv').config();
-const { REST, Routes, SlashCommandBuilder } = require('discord.js');
+const { REST, Routes } = require('discord.js');
 
+// Define your commands
 const commands = [
-  new SlashCommandBuilder()
-    .setName('ticket')
-    .setDescription('Create a ticket panel'),
-
-  new SlashCommandBuilder()
-    .setName('close')
-    .setDescription('Close the current ticket channel'),
-
-  new SlashCommandBuilder()
-    .setName('importance')
-    .setDescription('Set ticket importance')
-    .addStringOption(option =>
-      option.setName('level')
-        .setDescription('Importance level')
-        .setRequired(true)
-        .addChoices(
-          { name: 'Normal', value: 'normal' },
-          { name: 'Quick Support', value: 'quick' },
-          { name: 'Admin Needed Now', value: 'admin' }
-        )
-    ),
-
-  // ✅ New SSU command
-  new SlashCommandBuilder()
-    .setName('ssu')
-    .setDescription('Start server startup announcement')
-].map(command => command.toJSON());
+  {
+    name: 'importance',
+    description: 'Mark a ticket with importance level',
+  },
+  {
+    name: 'ssu',
+    description: 'Start a server startup announcement',
+  },
+];
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
@@ -36,6 +20,7 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
   try {
     console.log('🚀 Started refreshing application (/) commands.');
 
+    // ✅ Guild-specific registration (instant updates in your server)
     await rest.put(
       Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
       { body: commands },
@@ -43,6 +28,6 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
     console.log('✅ Successfully reloaded application (/) commands.');
   } catch (error) {
-    console.error(error);
+    console.error('❌ Error deploying commands:', error);
   }
 })();
