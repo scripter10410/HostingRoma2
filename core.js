@@ -3,7 +3,11 @@ const { Client, GatewayIntentBits, Collection, SlashCommandBuilder, PermissionFl
 require('dotenv').config();
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
 });
 
 client.commands = new Collection();
@@ -49,6 +53,7 @@ client.once('ready', () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 });
 
+// Handle slash commands
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
   const command = client.commands.get(interaction.commandName);
@@ -61,6 +66,22 @@ client.on('interactionCreate', async interaction => {
       await interaction.followUp({ content: '❌ Error executing command.', ephemeral: true });
     } else {
       await interaction.reply({ content: '❌ Error executing command.', ephemeral: true });
+    }
+  }
+});
+
+// 🛑 Auto‑moderation for "the"
+client.on('messageCreate', async message => {
+  if (message.author.bot) return;
+
+  // Check if message contains "the" (case‑insensitive, whole word)
+  if (/\bthe\b/i.test(message.content)) {
+    try {
+      await message.reply(
+        `Oh you can’t say "the" here 😅\nTry again with another conversation!\nOr join https://discord.gg/XZxdJHGD2W for a free text server`
+      );
+    } catch (err) {
+      console.error('Failed to send moderation reply:', err);
     }
   }
 });
