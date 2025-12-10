@@ -1,49 +1,14 @@
 // core.js
-const { Client, GatewayIntentBits, Collection } = require('discord.js');
-const fs = require('fs');
+const { Client, GatewayIntentBits, Collection, SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 require('dotenv').config();
 
 const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-  ],
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
 });
 
 client.commands = new Collection();
 
-// Load commands dynamically
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-for (const file of commandFiles) {
-  const command = require(`./commands/${file}`);
-  client.commands.set(command.data.name, command);
-}
-
-client.once('ready', () => {
-  console.log(`✅ Logged in as ${client.user.tag}`);
-});
-
-client.on('interactionCreate', async interaction => {
-  if (!interaction.isChatInputCommand()) return;
-
-  const command = client.commands.get(interaction.commandName);
-  if (!command) return;
-
-  try {
-    await command.execute(interaction);
-  } catch (error) {
-    console.error(error);
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({ content: '❌ There was an error executing this command.', ephemeral: true });
-    } else {
-      await interaction.reply({ content: '❌ There was an error executing this command.', ephemeral: true });
-    }
-  }
-});
-
-// Example inline /ssu command (if you prefer not to keep it in /commands/ssu.js)
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+// Inline /ssu command
 const ssuCommand = {
   data: new SlashCommandBuilder()
     .setName('ssu')
@@ -78,7 +43,26 @@ const ssuCommand = {
   },
 };
 
-// Register inline command
 client.commands.set(ssuCommand.data.name, ssuCommand);
+
+client.once('ready', () => {
+  console.log(`✅ Logged in as ${client.user.tag}`);
+});
+
+client.on('interactionCreate', async interaction => {
+  if (!interaction.isChatInputCommand()) return;
+  const command = client.commands.get(interaction.commandName);
+  if (!command) return;
+  try {
+    await command.execute(interaction);
+  } catch (error) {
+    console.error(error);
+    if (interaction.replied || interaction.deferred) {
+      await interaction.followUp({ content: '❌ Error executing command.', ephemeral: true });
+    } else {
+      await interaction.reply({ content: '❌ Error executing command.', ephemeral: true });
+    }
+  }
+});
 
 client.login(process.env.TOKEN);
